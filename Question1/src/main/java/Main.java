@@ -28,6 +28,8 @@ public class Main {
             e.printStackTrace();
         }
 
+        // Printing the pools
+        System.out.println("Found " + data.size() + " Wading pools in json, printing them now");
         for (WadingPool pool :
                 data) {
             System.out.println(pool);
