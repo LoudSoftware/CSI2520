@@ -55,7 +55,7 @@ Le fichier contient la description des installations dans un fichier JSON. Vous 
 
 **<u><span style="font-family: 'Times New Roman','serif';"><span style="text-decoration: none;"> </span></span></u>**
 
-**_<u><span style="font-family: 'Times New Roman','serif';">Question 1\. Solution orientée-objet (Java)</span></u>_**** <span style="font-family: 'Times New Roman','serif';">[3 points]</span>**
+**_<u><span style="font-family: 'Times New Roman','serif';">Question 1\. Solution orientée-objet (Java)</span></u>_** <span style="font-family: 'Times New Roman','serif';">[3 points]</span>
 
 **<span style="font-family: 'Times New Roman','serif';"> </span>**
 
@@ -65,7 +65,7 @@ Le fichier contient la description des installations dans un fichier JSON. Vous 
 
 **_<u><span style="font-family: 'Times New Roman','serif';"><span style="text-decoration: none;"> </span></span></u>_**
 
-**_<u><span style="font-family: 'Times New Roman','serif';">Question 2\. Solution logique (Prolog)</span></u>_**** <span style="font-family: 'Times New Roman','serif';">[3 points]</span>**
+**_<u><span style="font-family: 'Times New Roman','serif';">Question 2\. Solution logique (Prolog)</span></u>_** <span style="font-family: 'Times New Roman','serif';">[3 points]</span>
 
 **<span style="font-family: 'Times New Roman','serif';"> </span>**
 
@@ -75,7 +75,7 @@ Le fichier contient la description des installations dans un fichier JSON. Vous 
 
 **<span style="font-family: 'Times New Roman','serif';"> </span>**
 
-**_<u><span style="font-family: 'Times New Roman','serif';">Question 3\. Solution fonctionnelle (Scheme)</span></u>_**** <span style="font-family: 'Times New Roman','serif';">[3 points]</span>**
+**_<u><span style="font-family: 'Times New Roman','serif';">Question 3\. Solution fonctionnelle (Scheme)</span></u>_** <span style="font-family: 'Times New Roman','serif';">[3 points]</span>
 
 **<span style="font-family: 'Times New Roman','serif';"> </span>**
 
@@ -97,7 +97,7 @@ Le fichier contient la description des installations dans un fichier JSON. Vous 
 
 **_<u><span style="font-family: 'Times New Roman','serif';"><span style="text-decoration: none;"> </span></span></u>_**
 
-**_<u><span style="font-family: 'Times New Roman','serif';">Question 4\. Solution concurrente (Go)</span></u>_**** <span style="font-family: 'Times New Roman','serif';">[3 points]</span>**
+**_<u><span style="font-family: 'Times New Roman','serif';">Question 4\. Solution concurrente (Go)</span></u>_** <span style="font-family: 'Times New Roman','serif';">[3 points]</span>
 
 **<span style="font-family: 'Times New Roman','serif';"> </span>**
 
