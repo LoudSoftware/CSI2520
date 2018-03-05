@@ -1,10 +1,13 @@
-package model;
+/*
+ * Copyright (c) 2018. Nicolas Znamenski
+ */
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+package com.question1.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
+
+@SuppressWarnings("unused")
 public class WadingPool implements Comparable<WadingPool> {
     // Node attributes
     private WadingPool parent;
@@ -36,8 +39,8 @@ public class WadingPool implements Comparable<WadingPool> {
         return coordinates;
     }
 
-    // Setters
 
+    // Setters
     public void setParent(WadingPool parent) {
         this.parent = parent;
     }
@@ -67,8 +70,13 @@ public class WadingPool implements Comparable<WadingPool> {
      *                              from being compared to this object.
      */
     public int compareTo(WadingPool o) {
-        //TODO add the distance algo to compare two nodes according to distance between each other
-        throw new NotImplementedException();
+        int result;
+        if (this.coordinates.get(1) <= o.coordinates.get(1)) {
+           result = -1;
+        } else {
+            result = 1;
+        }
+        return result;
     }
 
     @Override
