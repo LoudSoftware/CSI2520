@@ -11,10 +11,11 @@ def processToGeneral():
 
     for item in features:
         coordinates = item['geometry']['coordinates']
+        invertedCoordinates = [coordinates[1], coordinates[0]]
         name = item['properties']['NAME']
         pool = {
             "name": name,
-            "coordinates": coordinates
+            "coordinates": invertedCoordinates
         }
         generalData.append(pool)
 
@@ -33,8 +34,6 @@ def processToProlog():
             out = "Pool(" + '"' + item['name'] + '"' + "," + str(item['coordinates'][0]) + "," + str(item['coordinates'][1]) + ")." + "\n"
             print(out)
             outfile.write(out)
-        
-
 
 
 if __name__ == '__main__':
