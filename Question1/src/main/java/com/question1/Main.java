@@ -8,7 +8,6 @@ import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.question1.model.WadingPool; // Our wading pool model
-import de.micromata.opengis.kml.v_2_2_0.*;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -19,7 +18,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import processing.core.PApplet;
 
 
 public class Main {
@@ -36,15 +34,11 @@ public class Main {
     private Main(String filename) {
         this.filename = filename;
 
-        /**
-         * Grabs the data and puts it in data
-         */
+        // Grabs the data and puts it in data
         getData();
         sortData();
-
-        //generateKML();
-
     }
+
 
     private void sortData() {
         data.sort(Comparator.naturalOrder()); //Sorting from west-most to east-most
@@ -77,8 +71,6 @@ public class Main {
                 System.out.println(e.getMessage());
             }
         }
-
-
     }
 
     @SuppressWarnings("ComparatorMethodParameterNotUsed")
@@ -116,6 +108,7 @@ public class Main {
         }
     }
 
+
     private double p2pDistance(WadingPool x, WadingPool y) {
         double
                 lat1 = x.getCoordinates().get(0),
@@ -136,44 +129,6 @@ public class Main {
         return R * c;
     }
 
-    private void generateKML() {
-        final Kml kml = KmlFactory.createKml();
-        Folder folder = KmlFactory.createFolder();
-        folder.withName("Wading Pools");
-
-        List<Feature> placemarks = new ArrayList<>(100);
-        for (WadingPool pool :
-                finalRoute) {
-            folder.createAndAddPlacemark()
-                    .withVisibility(true)
-                    .withName(pool.getName())
-                    .withDescription(String.valueOf(pool.getCumulativeDistance()))
-                    .createAndSetPoint()
-                    .withExtrude(false)
-                    .withAltitudeMode(AltitudeMode.CLAMP_TO_GROUND)
-                    .addToCoordinates(pool.getCoordinates().get(1), pool.getCoordinates().get(0)).withId(pool.getName());
-            /*Placemark place = KmlFactory.createPlacemark();
-            place.setName(pool.getName());
-            place.setVisibility(true);
-
-            Point point = KmlFactory.createPoint();
-            point.addToCoordinates(pool.getCoordinates().get(1), pool.getCoordinates().get(0));
-            point.setExtrude(false);
-            point.setAltitudeMode(AltitudeMode.CLAMP_TO_GROUND);*/
-
-            /*place.setGeometry(point);
-            placemarks.add(place);*/
-        }
-//        doc.setFeature(placemarks);
-        kml.setFeature(folder);
-        try {
-            kml.marshal(new File("Wading-Pools.kml"));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        System.out.println(placemarks.get(0).getName());
-
-    }
 
     public static void main(String[] args) {
         if (args.length > 0) {
