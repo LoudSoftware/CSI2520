@@ -4,6 +4,7 @@
 
 package com.question1.model;
 
+
 import java.util.ArrayList;
 
 
@@ -17,6 +18,7 @@ public class WadingPool implements Comparable<WadingPool> {
     //Properties loaded from JSON
     private String name;
     private ArrayList<Double> coordinates;
+    private double cumulativeDistance;
 
     // Getters
     public WadingPool getParent() {
@@ -39,6 +41,9 @@ public class WadingPool implements Comparable<WadingPool> {
         return coordinates;
     }
 
+    public double getCumulativeDistance() {
+        return cumulativeDistance;
+    }
 
     // Setters
     public void setParent(WadingPool parent) {
@@ -59,6 +64,10 @@ public class WadingPool implements Comparable<WadingPool> {
 
     public void setCoordinates(ArrayList<Double> coordinates) {
         this.coordinates = coordinates;
+    }
+
+    public void setCumulativeDistance(double cumulativeDistance) {
+        this.cumulativeDistance = cumulativeDistance;
     }
 
     /**
@@ -90,3 +99,4 @@ public class WadingPool implements Comparable<WadingPool> {
                 '}';
     }
 }
+
