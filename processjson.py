@@ -13,6 +13,7 @@ def processToGeneral():
         coordinates = item['geometry']['coordinates']
         invertedCoordinates = [coordinates[1], coordinates[0]]
         name = item['properties']['NAME']
+        name = name.split("- ")[1]
         pool = {
             "name": name,
             "coordinates": invertedCoordinates
