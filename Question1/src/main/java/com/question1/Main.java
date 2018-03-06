@@ -8,16 +8,17 @@ import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.question1.model.WadingPool; // Our wading pool model
+import de.micromata.opengis.kml.v_2_2_0.*;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
 import java.lang.reflect.Type;
-import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-
 
 public class Main {
     private final String filename;
@@ -37,7 +38,13 @@ public class Main {
          * Grabs the data and puts it in data
          */
         getData();
+        sortData();
 
+        //generateKML();
+
+    }
+
+    private void sortData() {
         data.sort(Comparator.naturalOrder()); //Sorting from west-most to east-most
         System.out.println("__Sorted Pools__");
         for (WadingPool pool :
@@ -50,11 +57,26 @@ public class Main {
         buildRoute(); // Builds the route through all the pools
         System.out.println("Route build finished!");
 
+        File outfile = new File("Wading-Pools-Path.txt");
+        if (outfile.exists()) outfile.delete();
+
         for (WadingPool pool :
                 finalRoute) {
             DecimalFormat df = new DecimalFormat("#####.#");
-            System.out.println(pool.getName() + ": " + df.format(pool.getCumulativeDistance()));
+            String string = pool.getName() + ": " + df.format(pool.getCumulativeDistance()) + "\n";
+            System.out.print(string);
+
+            try {
+                BufferedWriter writer = new BufferedWriter(new FileWriter("Wading-Pools-Path.txt", true));
+                writer.append(string);
+
+                writer.close();
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
         }
+
+
     }
 
     @SuppressWarnings("ComparatorMethodParameterNotUsed")
@@ -67,7 +89,7 @@ public class Main {
         while (!data.isEmpty()) {
             WadingPool root = finalRoute.get(finalRoute.size() - 1);
 
-            data.sort((o1, o2) -> (int) p2pDistance(root, o2));
+            data.sort(Comparator.comparingDouble(pool -> p2pDistance(root, pool)));
 
             WadingPool closest = data.get(0);
 
@@ -93,23 +115,62 @@ public class Main {
     }
 
     private double p2pDistance(WadingPool x, WadingPool y) {
-        double lat1 = x.getCoordinates().get(0);
-        double lat2 = y.getCoordinates().get(0);
-        double lon1 = x.getCoordinates().get(1);
-        double lon2 = y.getCoordinates().get(1);
+        double
+                lat1 = x.getCoordinates().get(0),
+                lat2 = y.getCoordinates().get(0),
+                lon1 = x.getCoordinates().get(1),
+                lon2 = y.getCoordinates().get(1),
 
-        double R = 6371; // metres
-        double f1 = Math.toRadians(lat1);
-        double f2 = Math.toRadians(lat2);
-        double df = Math.toRadians(lat2 - lat1);
-        double dl = Math.toRadians(lon2 - lon1);
-
-        double a = Math.sin(df / 2) * Math.sin(df / 2) +
-                Math.cos(f1) * Math.cos(f2) *
-                        Math.sin(dl / 2) * Math.sin(dl / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
+                R = 6371, // Radius of the earth in KM
+                f1 = Math.toRadians(lat1),
+                f2 = Math.toRadians(lat2),
+                df = Math.toRadians(lat2 - lat1),
+                dl = Math.toRadians(lon2 - lon1),
+                a = Math.sin(df / 2) * Math.sin(df / 2) +
+                        Math.cos(f1) * Math.cos(f2) *
+                                Math.sin(dl / 2) *
+                                Math.sin(dl / 2),
+                c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
+    }
+
+    private void generateKML() {
+        final Kml kml = KmlFactory.createKml();
+        Folder folder = KmlFactory.createFolder();
+        folder.withName("Wading Pools");
+
+        List<Feature> placemarks = new ArrayList<>(100);
+        for (WadingPool pool :
+                finalRoute) {
+            folder.createAndAddPlacemark()
+                    .withVisibility(true)
+                    .withName(pool.getName())
+                    .withDescription(String.valueOf(pool.getCumulativeDistance()))
+                    .createAndSetPoint()
+                    .withExtrude(false)
+                    .withAltitudeMode(AltitudeMode.CLAMP_TO_GROUND)
+                    .addToCoordinates(pool.getCoordinates().get(1), pool.getCoordinates().get(0)).withId(pool.getName());
+            /*Placemark place = KmlFactory.createPlacemark();
+            place.setName(pool.getName());
+            place.setVisibility(true);
+
+            Point point = KmlFactory.createPoint();
+            point.addToCoordinates(pool.getCoordinates().get(1), pool.getCoordinates().get(0));
+            point.setExtrude(false);
+            point.setAltitudeMode(AltitudeMode.CLAMP_TO_GROUND);*/
+
+            /*place.setGeometry(point);
+            placemarks.add(place);*/
+        }
+//        doc.setFeature(placemarks);
+        kml.setFeature(folder);
+        try {
+            kml.marshal(new File("Wading-Pools.kml"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        System.out.println(placemarks.get(0).getName());
+
     }
 
     public static void main(String[] args) {

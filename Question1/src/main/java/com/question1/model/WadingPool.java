@@ -81,7 +81,7 @@ public class WadingPool implements Comparable<WadingPool> {
     public int compareTo(WadingPool o) {
         int result;
         if (this.coordinates.get(1) <= o.coordinates.get(1)) {
-           result = -1;
+            result = -1;
         } else {
             result = 1;
         }

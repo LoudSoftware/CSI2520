@@ -1,0 +1,62 @@
+Glen Cairn: 0
+Entrance: 6.3
+Corkstown: 8.7
+Michèle: 10.9
+Ruth Wildgen: 11.5
+Frank Ryan: 12.3
+Britannia: 13.2
+Parkway: 15.1
+Bel Air: 16.2
+Agincourt: 16.9
+Kingsmere: 17.8
+Woodroffe: 19.3
+McKellar: 20.2
+Westboro: 21.2
+Lions: 22.4
+Iona: 23.2
+Hampton: 23.8
+Alexander: 24.8
+Meadowvale: 25.3
+Raven: 26.6
+Bellevue Manor: 27.1
+Rideauview: 29.6
+Carleton Heights: 30.6
+General Burns: 32.3
+Crestview: 33.9
+Lisa: 37.8
+Champlain: 45.4
+Parkdale: 46.5
+Reid: 47.2
+Ev Tremblay: 48.1
+Chaudiere: 49.3
+McNabb: 50.2
+St. Luke's: 51.6
+Sandy Hill: 52.7
+Dutchie's Hole: 53.3
+Strathcona: 54.2
+Jules Morin: 55.1
+Bingham: 56.2
+Optimiste: 58.6
+Kiwanis: 59.9
+St-Laurent: 60.3
+St. Paul's: 61
+Overbrook: 61.9
+Cecil Morrison: 63.1
+Balena: 64.5
+Alda Burt: 65.9
+Weston: 66.6
+Canterbury: 67.4
+Hawthorne: 68.5
+Elizabeth Manley: 71.1
+Greenboro: 72.7
+Pushman: 73.7
+Frank Licari: 74.9
+Pauline Vanier: 76.5
+Heron: 77.9
+Alta Vista: 78.8
+Windsor: 80.3
+Sylvia Holden: 81.3
+Brantwood: 82.2
+Alvin Heights: 87.5
+Bearbrook: 94.6
+Owl: 106.5
