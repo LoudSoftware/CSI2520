@@ -73,7 +73,6 @@ public class Main {
         }
     }
 
-    @SuppressWarnings("ComparatorMethodParameterNotUsed")
     private void buildRoute() {
 
         finalRoute.add(data.get(0));
@@ -85,6 +84,7 @@ public class Main {
 
             data.sort(Comparator.comparingDouble(pool -> p2pDistance(root, pool)));
 
+    
             WadingPool closest = data.get(0);
 
             root.setLeft(closest);
