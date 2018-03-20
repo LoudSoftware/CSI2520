@@ -32,7 +32,7 @@ def processToProlog():
     print('__Begin Prolog conversion__')
     with open('wading-pools-filtered.pl','w') as outfile:
         for item in generalData:
-            out = "Pool(" + '"' + item['name'] + '"' + "," + str(item['coordinates'][0]) + "," + str(item['coordinates'][1]) + ")." + "\n"
+            out = "pool(" + '"' + item['name'] + '"' + "," + str(item['coordinates'][0]) + "," + str(item['coordinates'][1]) + ")." + "\n"
             print(out)
             outfile.write(out)
 
