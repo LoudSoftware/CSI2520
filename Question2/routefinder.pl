@@ -16,20 +16,21 @@ p2pdistance(point(_, Lat1, Lon1), point(_, Lat2, Lon2), D) :- distance(Lat1, Lon
 
 % Helper methods for file loading and whatnot
 
-% Loads a file into a list
-load_file(L, Filename) :- 
-    open(Filename ,read, file), 
-    read_file(Filename, L), 
-    close(Filename), 
+% Read file to list
+file_to_list(List, Filename) :-
+    open(Filename, read, Stream),
+    read_file(Stream,List),
+    close(Stream),
     nl.
-
-
-read_file(Filename, []) :- 
-    at_end_of_stream(Filename).
-read_file(Filename, [H|T]) :- 
-    \+ at_end_of_stream(Filename), 
-    read(Filename,H),
-    read_file(Filename, T).
+    
+read_file(File,[]) :-
+    at_end_of_stream(File).
+    
+read_file(File,[X|L]) :-
+    \+ at_end_of_stream(File),
+    read(File,X),
+    read_file(File,L).
+        
 
 % Writing a list to a file
 write_file(L, Filename) :- 
@@ -58,50 +59,42 @@ print_route(Filename, [H|T], pool(Name, Lat, Lon), Dist) :-
     write(Filename, '\n'), 
     NextD is (Dist + D), 
     print_route(Filename, T, H, NextD).
-% Everything above is basically appending the different things ew need to when we generate the answer
+% Everything above is basically appending the different things we need to when we generate the answer
 
 % Main entry point in the program
-findRoute(L) :- load_file(List, 'wading-pools-filtered.pl'), treeFactory(List, L).
+findRoute(L) :- file_to_list(List, 'pools.pl'), treeFactory(List, L).
 
 % Now the 'tree' is only going to have one child, because my algorithm is better, NA! :P
 
 treeFactory(List, Tree):- 
     find_westmost(List, Point),
-    remove_point(Point, _, NewL), % Removing the point from our initial list
+    remove_point(Point, List, NewL), % Removing the point from our initial list
     populate(Point, NewL, Tree).
 
 
 % First let's try to get the point that is westmost
-point(_, _, _).
-is_west_of(point(A, Lat1, Lon1), point(_, _, Lon2), Result) :- 
+point(A, X, Y).
+is_west_of(point(A, Lat1, Lon1), point(B, Lat2, Lon2), Result) :- 
     (Lon1 < Lon2), 
     Result = point(A, Lat1, Lon1). 
     % Gotta probably add the vars that I removed
-is_west_of(point(_, _, _), point(B, Lat2, Lon2), Result) :- 
+is_west_of(point(A, Lat1, Lon1), point(B, Lat2, Lon2), Result) :- 
     Result = point(B, Lat2, Lon2). 
     % Gotta probably add the vars that I removed
 
 find_westmost([H|T], Point) :- find_westmost(T, H, Point).
 find_westmost([], Point, Point).
-find_westmost([H|T], Point1, Point2) :- 
-    is_west_of(H, Point1, Point3),
-    find_westmost(T, Point3, Point2), !.
+find_westmost([H|T], Point1, Point) :- 
+    is_west_of(H, Point1, Point2),
+    find_westmost(T, Point2, Point), !.
 find_westmost([H|T], Point, A) :- find_westmost(T, Point, A), is_west_of(Point, H, Point).
 
-% then We want to remove the point from our initial list
-remove_point(_, [], []).
-remove_point(point(A, Lat1, Lon1), [point(B, Lat2, Lon2)|Tail], NewL) :- 
-    A == B, 
-    Lat1 == Lat2, 
-    Lon1 == Lon2, 
-    remove_point(Point, Tail, NewL).
-remove_point(Point, [H|Tail1], [H|Tail2]) :- remove_point(Point, Tail1, Tail2).
 
 
 % ayy let's populate the damn tree already
 populate(Root, List, Tree) :-
     populate(Root, List, [Root], Tree).
-populate(_, [], Tree, Tree).
+populate(Root, [], Tree, Tree).
 populate(Root, List, A, Answer) :-
     find_closest_to_root(List, Root, Point),
     remove_point(Point, List, NewL),
@@ -114,17 +107,17 @@ is_closest_to(A, B, Root, Point) :-
     p2pdistance(B, Root, Dist2),
     (Dist1 < Dist2),
     Point = A, !.
-is_closest_to(_, B, _, Point) :- Point = B.
+is_closest_to(A, B, Root, Point) :- Point = B.
 
 find_closest_to_root([H|T], Root, Point) :-
     find_closest_to_root(T, Root, H, Point).
-find_closest_to_root([], _, Point, Point).
+find_closest_to_root([], Root, Point, Point).
 find_closest_to_root([H|T], Root, Point, Answer) :-
     is_closest_to(Point, H, Root, A),
     find_closest_to_root(T, Root, A, Answer),!.
 
 % Finally, pushing a point to the end of a list
 push_point(Point, [], [Point]).
-push_point(Point, [_|T1], [_|T2]) :-
+push_point(Point, [H1|T1], [H2|T2]) :-
     push_point(Point, T1, T2).
 
