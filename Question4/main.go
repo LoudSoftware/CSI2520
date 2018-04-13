@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"os"
 	"math"
+	"math/rand"
+	"strconv"
 )
 
 //Pool Defining a pool struct
@@ -40,58 +42,36 @@ func getPools() ([]*Pool) {
 	return l
 }
 
-// Sorting from westmost to eastmost point
-func qsortPass(arr []*Pool, stop chan int) []*Pool {
-
-	if len(arr) < 2 {
-		stop <- len(arr)
-		return arr
+// Inspired from https://stackoverflow.com/questions/15802890/idiomatic-quicksort-in-go
+func qsort(list []*Pool) []*Pool {
+	if len(list) < 2 {
+		return list
 	}
 
-	pivot := arr[0]
-	i, j := 1, len(arr)-1
+	left, right := 0, len(list)-1
 
-	for i != j {
-		for arr[i].Coordinates[0] < pivot.Coordinates[0] && i != j {
-			i++
+	// Pick a pivot
+	pivotIndex := rand.Int() % len(list)
+
+	// Move the pivot to the right
+	list[pivotIndex], list[right] = list[right], list[pivotIndex]
+
+	// Pile elements smaller than the pivot on the left
+	for i := range list {
+		if list[i].Coordinates[0] < list[right].Coordinates[0] {
+			list[i], list[left] = list[left], list[i]
+			left++
 		}
-		for arr[j].Coordinates[0] >= pivot.Coordinates[0] && i != j {
-			j--
-		}
-		if arr[i].Coordinates[0] > arr[j].Coordinates[0] {
-			arr[i], arr[j] = arr[j], arr[i]
-		}
 	}
 
-	if arr[j].Coordinates[0] >= pivot.Coordinates[0] {
-		j--
-	}
-	arr[0], arr[j] = arr[j], arr[0]
+	// Place the pivot after the last smaller element
+	list[left], list[right] = list[right], list[left]
 
-	stop <- 1
+	// Go down the rabbit hole
+	qsort(list[:left])
+	qsort(list[left+1:])
 
-	go qsortPass(arr[:j], stop)
-	go qsortPass(arr[j+1:], stop)
-
-	return arr
-}
-func qsort(arr []*Pool) []*Pool {
-
-	stop := make(chan int)
-
-	defer func() {
-		close(stop)
-	}()
-
-	go qsortPass(arr[:], stop)
-
-	results := len(arr)
-
-	for results > 0 {
-		results -= <-stop
-	}
-
-	return arr
+	return list
 }
 
 // Defining the Route struct
@@ -101,86 +81,106 @@ type Route struct {
 }
 
 // Finding distance between 2 Pools
-func p2pDistance(p *Pool, other *Pool, out chan Route) {
+func concurrentP2PDistance(p *Pool, other *Pool, out chan Route) {
 	out <- Route{p.distance(other), other}
 }
 
 func (p *Pool) distance(other *Pool) (float64) {
-	lat1R := p.Coordinates[0] * math.Pi / 180
-	lon1R := p.Coordinates[1] * math.Pi / 180
-	lat2R := other.Coordinates[0] * math.Pi / 180
-	lon2R := other.Coordinates[1] * math.Pi / 180
+	lat1 := p.Coordinates[0] * math.Pi / 180
+	lon1 := p.Coordinates[1] * math.Pi / 180
+	lat2 := other.Coordinates[0] * math.Pi / 180
+	lon2 := other.Coordinates[1] * math.Pi / 180
 
-	dRad := 2 * math.Asin(math.Sqrt(math.Pow(math.Sin((lat1R-lat2R)/2), 2) +
-		math.Cos(lat1R)*math.Cos(lat2R)*math.Pow(math.Sin((lon1R-lon2R)/2), 2)))
+	a := 2 * math.Asin(math.Sqrt(math.Pow(math.Sin((lat1-lat2)/2), 2) +
+		math.Cos(lat1)*math.Cos(lat2)*math.Pow(math.Sin((lon1-lon2)/2), 2)))
 
-	return 6371.0 * dRad
+	return 6371.0 * a
 }
 
-//Finding the closest point from the array to the given point
-func findClosestPoint(pool *Pool, pools []*Pool) (*Pool) {
-
-	out := make(chan Route, 1000)
+// Finding the closest point from the array to the given point
+func findClosestPoint(pool *Pool, pools []*Pool) (*Pool, int) {
+	out := make(chan Route, len(pools))
 
 	for i := 0; i < len(pools); i++ {
-		p2pDistance(pool, pools[i], out)
+		concurrentP2PDistance(pool, pools[i], out)
 	}
 
 	current := Route{math.MaxFloat64, nil}
-
+	currentIndex := math.MaxInt64 // Making it so that the index is by default out of bounds
 	for i := 0; i < len(pools); i++ {
-
 		result := <-out
-
 		if result.cumulativeDist < current.cumulativeDist {
 			current = result
+			currentIndex = i
 		}
 	}
 
 	defer close(out)
 
-	return current.pool
+	return current.pool, currentIndex
 }
 
-var Tree []*Pool
 
-func getPath(Tree []*Pool) ([]*Route) {
+func findRoute(Tree []*Pool) ([]*Route) {
 	var routeList []*Route
 
-	if Tree[0] == nil {
-		e := Tree[0]
-		remove(Tree, 0)
-		fmt.Println(len(Tree))
+	for len(Tree) > 0 {
+		// Initializing the routelist to contain the first element
+		if len(routeList) == 0 {
+			e := Tree[0]
+			Tree = removeAtIndex(Tree, 0)
+			routeList = append(routeList, &Route{0, e})
+		} else { // Then we want for each last element added to routeList to sort the tree according to distance to the point
 
-		routeList = append(routeList, &Route{0, e})
-	} else {
+			var root = routeList[len(routeList)-1]                 // This is the root point from which we want the closest
+			var closest, index = findClosestPoint(root.pool, Tree) // We get the closest point to the root with this
+			Tree = removeAtIndex(Tree, index)                      // Because we silly people do this kinda horror
 
+			//Calculate cumulative distance
+			rootDist := root.cumulativeDist
+			distToRoot := root.pool.distance(closest)
+
+			routeList = append(routeList, &Route{rootDist + distToRoot, closest})
+		}
 	}
 	return routeList
 
 }
 
-
-
-func remove(s []*Pool, i int) []*Pool {
-	s[len(s)-1], s[i] = s[i], s[len(s)-1]
+func removeAtIndex(s []*Pool, index int) []*Pool {
+	s[len(s)-1], s[index] = s[index], s[len(s)-1]
 	return s[:len(s)-1]
+}
+
+func saveRoute(route []*Route, filename string) (bool) {
+	file, err := os.Create(filename)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	defer file.Close()
+
+	for _, routePoint := range route {
+		out := routePoint.pool.Name + " " + strconv.FormatFloat(routePoint.cumulativeDist, 'f', -1, 64) + "\n"
+		file.WriteString(out)
+	}
+	return true
 }
 
 func main() {
 	pools := getPools()
-	/* for _, p := range pools {
-		fmt.Println(p.toString())
-	} */
 
 	sortedPools := qsort(pools)
 
 	fmt.Println("Sorted from west to east...")
-	for _, p := range sortedPools {
-		fmt.Println(p.toString())
+
+	route := findRoute(sortedPools)
+
+	fmt.Println("Current Route...")
+	for _, p := range route {
+		fmt.Printf("%s: %f\n", p.pool.Name, p.cumulativeDist)
 	}
 
-	route := getPath(sortedPools)
-    fmt.Println(route)
-	//fmt.Println(toJSON(pools))
+	saveRoute(route, "Result.txt")
 }
